@@ -25,36 +25,39 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
 export async function DELETE(req: Request, context: { params: { id: string } }) {
     let client;
-  
+
     try {
-      const params = await context.params; 
-      const { id } = params; 
-  
-      client = await pool.connect();
-      
-      const reviewId = parseInt(id, 10);
-      const reviewResult = await client.query("SELECT * FROM reviews WHERE id = $1", [reviewId]);
-  
-      if (!reviewResult.rows.length) {
-        return NextResponse.json({ success: false, error: "Review not found" }, { status: 404 });
-      }
-  
-      await client.query("DELETE FROM reviews WHERE id = $1", [reviewId]);
-  
-      return NextResponse.json({ success: true, message: "Review deleted successfully!" });
+        const params = await context.params;
+        const { id } = params;
+        const reviewId = parseInt(id, 10); 
+
+        client = await pool.connect();
+
+        
+        const reviewResult = await client.query("SELECT * FROM reviews WHERE id = $1", [reviewId]);
+
+        if (!reviewResult.rows.length) {
+            return NextResponse.json({ success: false, error: "Review not found" }, { status: 404 });
+        }
+
+        
+        const result = await client.query("DELETE FROM reviews WHERE id = $1", [reviewId]);
+
+        return NextResponse.json({ success: true, message: "Review deleted successfully!" });
     } catch (error) {
-      return NextResponse.json({ success: false, error: (error as Error).message });
+        return NextResponse.json({ success: false, error: (error as Error).message });
     } finally {
-      if (client) client.release();
+        if (client) client.release();
     }
-  }
-  
+}
+
 
 export async function PUT(req: Request, context: { params: { id: string } }) {
   let client;
 
   try {
-    const { id } = context.params;
+    const params = await context.params;
+    const { id } = params;
     const body = await req.json();
     const { content, rating } = body;
 

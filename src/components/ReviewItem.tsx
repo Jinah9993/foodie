@@ -22,22 +22,29 @@ const ReviewItem = ({ review, onDeleteReview, onUpdateReview }: ReviewItemProps)
   const [editedRating, setEditedRating] = useState(review.rating);
 
   const deleteReview = async () => {
+    console.log("Delete button clicked"); 
+
     if (!confirm("Are you sure you want to delete this review?")) return;
 
+    console.log(`Attempting to delete review ID: ${review.id}`);
+
     try {
-      const res = await fetch(`/api/reviews/${review.id}`, { method: "DELETE" });
+        const res = await fetch(`/api/reviews/${review.id}`, { method: "DELETE" });
 
-      if (!res.ok) {
-        console.error("Failed to delete review");
-        return;
-      }
-
-      onDeleteReview(review.id);
+        if (res.ok) {
+            console.log(`Successfully deleted review ID: ${review.id}`);
+            onDeleteReview(review.id); 
+        } else {
+            const errorData = await res.json();
+            console.error("Failed to delete review:", errorData.error || "Unknown error");
+        }
     } catch (error) {
-      console.error("Error deleting review:", error);
+        console.error("Error deleting review:", error);
     }
-  };
+};
 
+
+  
   const saveEdit = async () => {
     try {
       const res = await fetch(`/api/reviews/${review.id}`, {
